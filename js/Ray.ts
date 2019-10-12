@@ -1,7 +1,7 @@
 class Ray {
   isDrawGhostRay: boolean = true;
-  isDrawRayToFirstIntersection: boolean = false;
-  isDrawIntersections: boolean = false;
+  isDrawRayToFirstIntersection: boolean = true;
+  isDrawIntersections: boolean = true;
   origin: p5.Vector;
   movementPhase: number;
 
@@ -101,7 +101,7 @@ class Ray {
     this.updateDirty(walls);
   }
 
-  draw() {
+  drawRayUntilFirstIntersection() {
     const o = this.origin;
     const end = o.copy().add(this.dir.copy().mult(40));
 
@@ -111,11 +111,6 @@ class Ray {
       strokeWeight(0.3);
       line(o.x, o.y, this.farEnd.x, this.farEnd.y);
     }
-    //draw short ray
-    stroke("white");
-    strokeWeight(4);
-    //    line(o.x, o.y, end.x, end.y);
-
     const nearPt = this.nearestIntersection();
     if (this.isDrawRayToFirstIntersection) {
       if (nearPt) {
@@ -124,6 +119,19 @@ class Ray {
         line(o.x, o.y, nearPt.x, nearPt.y);
       }
     }
+
+    if (this.isDrawIntersections) {
+      for (let iPt of this.intersectionPoints) {
+        fill("red");
+        circle(iPt.x, iPt.y, 2);
+      }
+    }
+  }
+  drawAgentCanSeePlayer() {
+    const o = this.origin;
+    const end = o.copy().add(this.dir.copy().mult(40));
+
+    const nearPt = this.nearestIntersection();
 
     //draw start point
     noStroke();
@@ -136,12 +144,6 @@ class Ray {
       const litColor: p5.Color = color(255, 255, 255, brightness);
       fill(litColor);
       circle(o.x, o.y, 8);
-    }
-    if (this.isDrawIntersections) {
-      for (let iPt of this.intersectionPoints) {
-        fill("red");
-        circle(iPt.x, iPt.y, 2);
-      }
     }
   }
 }

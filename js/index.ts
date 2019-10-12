@@ -3,10 +3,12 @@
 //p5.disableFriendlyErrors = true;
 const isDebugging = false;
 let gWalls: Wall[] = [];
-let gRays: Ray[] = [];
+let gAgentRays: Ray[] = [];
+let gPlayerRays: Ray[] = [];
 let gPlayer: Particle = null;
 let gNumWalls: number = 20;
-let gNumRays: number = 100;
+let gNumAgents: number = 100;
+let gNumPlayerRays: number = 100;
 let gNumStructures = 7;
 /* ------------------------------------------------------------------
  * SETUP
@@ -24,8 +26,13 @@ function setup() {
   repeat(gNumWalls, () => {
     gWalls.push(Wall.createRandom());
   });
-  repeat(gNumRays, () => {
-    gRays.push(Ray.createRandom());
+  repeat(gNumAgents, () => {
+    gAgentRays.push(Ray.createRandom());
+  });
+
+  repeat(gNumPlayerRays, ix => {
+    const angle = (ix * TWO_PI) / gNumPlayerRays;
+    gPlayerRays.push(new Ray(mousePosAsVector(), angle));
   });
 
   gPlayer = Particle.createRandom();
@@ -47,10 +54,13 @@ function update() {
   gPlayer.setPosition(mousePosAsVector());
   gPlayer.update();
 
-  for (let ray of gRays) {
+  for (let ray of gAgentRays) {
     ray.updateWithRoaming(gWalls, mousePosAsVector());
-    //ray.setPosition(mousePosAsVector());
-    //ray.updateIntersections(gWalls);
+  }
+
+  for (let ray of gPlayerRays) {
+    ray.setPosition(mousePosAsVector());
+    ray.updateIntersections(gWalls);
   }
 }
 /*
@@ -65,8 +75,11 @@ function draw() {
   for (let wall of gWalls) {
     wall.draw();
   }
-  for (let ray of gRays) {
-    ray.draw();
+  for (let ray of gAgentRays) {
+    ray.drawAgentCanSeePlayer();
+  }
+  for (let ray of gPlayerRays) {
+    ray.drawRayUntilFirstIntersection();
   }
   gPlayer.draw();
 }
