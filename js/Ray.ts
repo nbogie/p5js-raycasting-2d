@@ -136,6 +136,6 @@ class Ray {
   canSeePoint(target: p5.Vector): boolean {
     const nearestIsect: p5.Vector = this.nearestIntersection();
     const distToTarget = this.origin.dist(target);
-    return nearestIsect && this.origin.dist(nearestIsect) < distToTarget;
+    return !(nearestIsect && this.origin.dist(nearestIsect) < distToTarget);
   }
 }
