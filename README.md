@@ -1,6 +1,9 @@
-This is a quick take on the coding train challenge "2d ray tracing with p5.js".
+This is a quick take on the Coding Train ["Coding Challenge #145: 2D Raycasting" (with p5.js)](https://www.youtube.com/watch?v=TOEi6T2mtHo)
 
 Instead of ray tracing out from the mouse pointer uniformly around a circle, I've raytraced from moving points (e.g. agents) toward the mouse pointer and highlit whether they can see it or not. e.g. guards with Line-of-sight.
+
+![Screenshot of raycasting]()
+![Screenshot showing car sprite on road](screenshot-raycasting-agents.png?raw=true)
 
 # Credits:
 
