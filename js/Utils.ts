@@ -30,8 +30,6 @@ function collideLineLine(
   x4: number,
   y4: number
 ) {
-  let intersection;
-
   // calculate the distance to intersection point
   let uA =
     ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) /
@@ -46,11 +44,7 @@ function collideLineLine(
     let intersectionX = x1 + uA * (x2 - x1);
     let intersectionY = y1 + uA * (y2 - y1);
 
-    intersection = {
-      x: intersectionX,
-      y: intersectionY
-    };
-    return intersection;
+    return createVector(intersectionX, intersectionY);
   }
   return null;
 }
@@ -69,4 +63,11 @@ function minBy<T>(list: T[], fn: (item: T) => number): T {
     }
   }
   return recordItem;
+}
+
+function distributeUpTo(total: number, max: number, fn: (v: number) => void) {
+  repeat(total, ix => {
+    const val = (ix * max) / total;
+    fn(val);
+  });
 }

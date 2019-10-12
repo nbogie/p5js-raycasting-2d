@@ -1,50 +1,54 @@
+interface RayOptions {
+  angleRads?: number;
+  target?: p5.Vector; //TODO: exactly one of target and angleRads is required.
+  walls?: Wall[];
+}
 class Ray {
   //TODO: split this out into an agent which has an origin and a ray, with the ray handling only handling deciding line of sight and intersection points.
-  isRenderAsCobweb = false;
-  isDrawGhostRay: boolean = true;
-  isDrawRayToFirstIntersection: boolean = true;
-  isDrawIntersections: boolean = false;
+  static isRenderAsCobweb = false;
+  static isDrawGhostRay: boolean = true;
+  static isDrawRayToFirstIntersection: boolean = true;
+  static isDrawIntersections: boolean = false;
+
   origin: p5.Vector;
-  movementPhase: number;
-  speed: number; // move out to particle of origin
 
   //ray is conceptually infinite length with only one end, but this hack is useful for intersection and rendering.
   farEnd: p5.Vector; //a hack.  offscreen "far end".
 
-  dir: p5.Vector;
+  angleRads: p5.Vector;
   intersectionPoints: p5.Vector[];
 
-  constructor(origin: p5.Vector, angleRads: number) {
+  constructor(
+    origin: p5.Vector,
+    { angleRads = null, target = null, walls = [] }: RayOptions
+  ) {
     this.origin = origin.copy();
-    this.dir = p5.Vector.fromAngle(angleRads);
+    if (target !== null) {
+      this.lookAt(target);
+    } else {
+      this.angleRads = p5.Vector.fromAngle(angleRads);
+    }
     this.intersectionPoints = [];
     this.recalculateFarEnd();
-    this.movementPhase = random(10000);
-    this.speed = 1;
+    if (walls.length > 0) {
+      this.recalculateIntersections(walls);
+    }
   }
 
-  setPosition(pos: p5.Vector) {
-    this.origin.x = pos.x;
-    this.origin.y = pos.y;
-    this.recalculateFarEnd();
-  }
-
-  updateDirty(walls: Wall[]) {
-    this.recalculateFarEnd();
-    this.recalculateIntersections(walls);
-  }
-  lookAt(targetPos: p5.Vector) {
+  lookAt(targetPos: p5.Vector): void {
     const deltaToTarget = targetPos.copy().sub(this.origin);
     //note: param order: y then x
     const angleToTarget = atan2(deltaToTarget.y, deltaToTarget.x);
-    this.dir = p5.Vector.fromAngle(angleToTarget);
+    this.angleRads = p5.Vector.fromAngle(angleToTarget);
     this.recalculateFarEnd();
   }
 
-  static createRandom() {
-    return new Ray(randomScreenPosition(), random(0, TWO_PI));
+  static createRandom(): Ray {
+    return new Ray(randomScreenPosition(), { angleRads: random(0, TWO_PI) });
   }
   intersectionWithWall(wall: Wall): p5.Vector {
+    //TODO: customise a fn to collideLineSegWithRay,
+    //rather than LineSeg with LineSeg
     const answer = collideLineLine(
       wall.a.x,
       wall.a.y,
@@ -56,9 +60,7 @@ class Ray {
       this.farEnd.y
     );
 
-    if (answer) {
-      return createVector(answer.x, answer.y);
-    }
+    return answer;
   }
 
   nearestIntersection(): p5.Vector {
@@ -81,46 +83,16 @@ class Ray {
     }
     return res;
   }
-  recalculateIntersections(walls: Wall[]) {
+  recalculateIntersections(walls: Wall[]): void {
     this.intersectionPoints = this.calculateIntersections(walls);
   }
 
   recalculateFarEnd(): void {
-    this.farEnd = this.origin.copy().add(this.dir.copy().mult(width));
+    this.farEnd = this.origin.copy().add(this.angleRads.copy().mult(width));
   }
 
-  updateWithRoaming(walls: Wall[], mousePos: p5.Vector): void {
-    let newPos: p5.Vector = null;
-
-    const offset = createVector(0, 0);
-    offset.x = map(
-      noise(this.movementPhase + 33333 + frameCount / 100),
-      0,
-      1,
-      -1,
-      1
-    );
-    offset.y = map(noise(this.movementPhase + frameCount / 100), 0, 1, -1, 1);
-
-    const attractVec = this.origin
-      .copy()
-      .sub(mousePosAsVector())
-      .normalize();
-    newPos = this.origin.copy().add(attractVec.mult(this.speed));
-
-    newPos.add(offset);
-
-    this.setPosition(newPos);
-    this.lookAt(mousePos);
-    this.updateDirty(walls);
-    const newSpeed =
-      this.speed + (this.canSeePoint(mousePosAsVector()) ? -0.1 : 0.1);
-    if (Math.abs(newSpeed) < 3) {
-      this.speed = newSpeed;
-    }
-  }
   drawLitLineSegment(a: p5.Vector, b: p5.Vector): void {
-    if (this.isRenderAsCobweb) {
+    if (Ray.isRenderAsCobweb) {
       for (let i = 0; i < 20; i++) {
         const pt = a.copy().lerp(b, i / 10);
         square(pt.x, pt.y, 1);
@@ -130,18 +102,18 @@ class Ray {
     }
   }
 
-  drawRayUntilFirstIntersection() {
+  drawRayUntilFirstIntersection(): void {
     const o = this.origin;
-    const end = o.copy().add(this.dir.copy().mult(40));
+    const end = o.copy().add(this.angleRads.copy().mult(40));
 
     //draw to far (off-screen) end
-    if (this.isDrawGhostRay) {
+    if (Ray.isDrawGhostRay) {
       stroke(255, 255, 255, 10);
       strokeWeight(0.3);
       line(o.x, o.y, this.farEnd.x, this.farEnd.y);
     }
     const nearPt = this.nearestIntersection();
-    if (this.isDrawRayToFirstIntersection) {
+    if (Ray.isDrawRayToFirstIntersection) {
       if (nearPt) {
         stroke("white");
         strokeWeight(2);
@@ -149,9 +121,9 @@ class Ray {
       }
     }
 
-    if (this.isDrawIntersections) {
+    if (Ray.isDrawIntersections) {
       for (let iPt of this.intersectionPoints) {
-        fill("green");
+        fill("gray");
         circle(iPt.x, iPt.y, 2);
       }
       const first = this.nearestIntersection();
@@ -161,27 +133,9 @@ class Ray {
       }
     }
   }
-  canSeePoint(target: p5.Vector) {
+  canSeePoint(target: p5.Vector): boolean {
     const nearestIsect: p5.Vector = this.nearestIntersection();
     const distToTarget = this.origin.dist(target);
     return nearestIsect && this.origin.dist(nearestIsect) < distToTarget;
-  }
-
-  drawAgentCanSeePlayer() {
-    const o = this.origin;
-    const end = o.copy().add(this.dir.copy().mult(40));
-
-    //draw start point
-    noStroke();
-    if (this.canSeePoint(mousePosAsVector())) {
-      fill(0, 0, 0, 20);
-      circle(o.x, o.y, 8);
-    } else {
-      const distToMousePointer = this.origin.dist(mousePosAsVector());
-      const brightness = map(distToMousePointer, 0, max(width, height), 255, 0);
-      const litColor: p5.Color = color(255, 255, 255, brightness);
-      fill(litColor);
-      circle(o.x, o.y, 8);
-    }
   }
 }
