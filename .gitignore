@@ -2,4 +2,5 @@ node_modules/
 .vscode/
 **/*.js
 **/*.js.map
+!libs/*.js
 !build/build.jsbuild
