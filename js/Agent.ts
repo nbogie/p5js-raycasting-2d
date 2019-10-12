@@ -1,50 +1,39 @@
 class Agent {
   pos: p5.Vector;
   movementPhase: number;
-  speed: number;
   ray: Ray;
 
   constructor(pos: p5.Vector) {
     this.pos = pos.copy();
     this.movementPhase = random(10000);
-    this.speed = 1;
     this.ray = new Ray(this.pos, { target: mousePosAsVector() });
   }
 
   draw() {
-    noStroke();
-    fill("black");
-    rectMode(CENTER);
-    square(this.pos.x, this.pos.y, 3);
-    fill(0, 20);
-
-    this.drawAgentCanSeePosition(mousePosAsVector());
-  }
-
-  drawAgentCanSeePosition(targetPos: p5.Vector) {
+    const targetPos = mousePosAsVector();
     const o = this.pos;
-
     //draw agent sprite (a circle) according to whether it has l.o.s. to targetPos
     noStroke();
     push();
     translate(o.x, o.y);
-    if (this.ray.canSeePoint(targetPos)) {
-      fill(0, 0, 0, 20);
-      circle(0, 0, 8);
-      circle(0, 3, 2);
+    scale(2);
+    let brightness;
+    if (!this.ray.canSeePoint(targetPos)) {
+      brightness = 20;
     } else {
       const distToTarget = this.pos.dist(targetPos);
-      const brightness = map(distToTarget, 0, max(width, height), 255, 0);
-      const litColor: p5.Color = color(255, 255, 255, brightness);
-      fill(litColor);
-      circle(0, 0, 8);
-      fill(0, 0, 0, 40);
-      rectMode(CENTER);
-      rect(0, 2, 5, 2);
-      //eyes
-      circle(-2, -2, 2);
-      circle(2, -2, 2);
+      brightness = map(distToTarget, 0, max(width, height), 255, 0);
     }
+    const litColor: p5.Color = color(224, 228, 204, brightness);
+    fill(litColor);
+    circle(0, 0, 8);
+    fill(0, 0, 0, 40);
+    rectMode(CENTER);
+    rect(0, 3, 5, 2);
+    //eyes
+    circle(-2, -1, 1);
+    circle(2, -1, 1);
+
     pop();
   }
 
@@ -56,10 +45,8 @@ class Agent {
   static createRandom() {
     return new Agent(randomScreenPosition());
   }
-
-  updateWithRoaming(walls: Wall[], targetPos: p5.Vector): void {
-    let newPos: p5.Vector = null;
-
+  /** move the agent and recalculate the ray from it to the target pos */
+  update(walls: Wall[], targetPos: p5.Vector): void {
     const offset = createVector(0, 0);
     offset.x = map(
       noise(this.movementPhase + 33333 + frameCount / 100),
@@ -70,22 +57,8 @@ class Agent {
     );
     offset.y = map(noise(this.movementPhase + frameCount / 100), 0, 1, -1, 1);
 
-    const attractVec = this.pos
-      .copy()
-      .sub(targetPos)
-      .normalize();
-    //newPos = this.pos.copy().add(attractVec.mult(this.speed));
-    newPos = this.pos.copy();
-    newPos.add(offset);
+    this.setPosition(this.pos.copy().add(offset));
 
-    this.setPosition(newPos);
-    this.ray = new Ray(this.pos, { target: targetPos });
-    this.ray.recalculateIntersections(walls);
-
-    const newSpeed =
-      this.speed + (this.ray.canSeePoint(targetPos) ? 0.1 : -0.1);
-    if (Math.abs(newSpeed) < 3) {
-      this.speed = newSpeed;
-    }
+    this.ray = new Ray(this.pos, { target: targetPos, walls: walls });
   }
 }

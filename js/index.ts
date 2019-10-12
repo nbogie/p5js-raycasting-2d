@@ -52,10 +52,12 @@ function update() {
   gPlayer.update();
 
   for (let s of gStructures) {
-    s.update();
+    if (isMovingStructures) {
+      s.update();
+    }
   }
   for (let agent of gAgents) {
-    agent.updateWithRoaming(getAllWalls(), mousePosAsVector());
+    agent.update(getAllWalls(), mousePosAsVector());
   }
 
   gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector());
@@ -82,4 +84,11 @@ function draw() {
     ray.drawRayUntilFirstIntersection();
   }
   gPlayer.draw();
+}
+let isMovingStructures = true;
+function toggleMovingStructures() {
+  isMovingStructures = !isMovingStructures;
+}
+function mousePressed() {
+  toggleMovingStructures();
 }

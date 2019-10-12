@@ -17,7 +17,7 @@ class Wall {
     noStroke();
     fill(this.myColor);
     [this.a, this.b].forEach(pt => {
-      circle(pt.x, pt.y, 5);
+      //circle(pt.x, pt.y, 5);
     });
   }
   midPoint(): p5.Vector {
@@ -28,12 +28,6 @@ class Wall {
     return dist(this.a.x, this.a.y, this.b.x, this.b.y);
   }
 
-  translate(offset: p5.Vector) {
-    for (let pt of [this.a, this.b]) {
-      pt.x += offset.x;
-      pt.y += offset.y;
-    }
-  }
   static createRandom() {
     const p1 = randomScreenPosition();
     const p2 = p1.copy().add(p5.Vector.random2D().mult(random(40, 400)));

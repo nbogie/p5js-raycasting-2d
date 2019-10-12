@@ -1,12 +1,4 @@
 class Structure {
-  randomColor(): p5.Color {
-    return random([
-      color(250, 105, 0),
-      color(105, 210, 231),
-      color(167, 219, 216),
-      color(243, 134, 48)
-    ]);
-  }
   isFilledShape = false;
   center: p5.Vector;
   abstractVertices: p5.Vector[];
@@ -18,7 +10,7 @@ class Structure {
 
   constructor(center: p5.Vector, radius: number, numSides: number) {
     this.rotation = random(TWO_PI);
-    this.myColor = this.randomColor();
+    this.myColor = Palette.randomColor();
     this.movementSpeed = -random(0.2, 2);
     this.rotationSpeed = random(-0.01, 0.01);
     this.abstractVertices = this.createVerticesForShapeWithNumSides(
@@ -111,7 +103,7 @@ class Structure {
     for (let wall of this.walls) {
       wall.draw();
     }
-    circle(this.center.x, this.center.y, 5);
+    //circle(this.center.x, this.center.y, 5);
     if (this.isFilledShape) {
       beginShape();
       for (let wall of this.walls) {
@@ -125,7 +117,7 @@ class Structure {
 
   static createRandom() {
     const center = randomScreenPosition();
-    const numSides = random([1, 1, 1, 3, 4, 5, 8]);
+    const numSides = random([1, 1, 1, 3, 4, 5, 6]);
     return new Structure(center, random(20, random(100, 200)), numSides);
   }
 }
