@@ -7,7 +7,7 @@ class Structure {
       color(243, 134, 48)
     ]);
   }
-
+  isFilledShape = false;
   center: p5.Vector;
   walls: Wall[];
   movementSpeed: number;
@@ -58,13 +58,15 @@ class Structure {
     for (let wall of this.walls) {
       wall.draw();
     }
-    beginShape();
-    for (let wall of this.walls) {
-      for (let pt of [wall.a, wall.b]) {
-        vertex(pt.x, pt.y);
+    if (this.isFilledShape) {
+      beginShape();
+      for (let wall of this.walls) {
+        for (let pt of [wall.a, wall.b]) {
+          vertex(pt.x, pt.y);
+        }
       }
+      endShape(CLOSE);
     }
-    endShape(CLOSE);
   }
 
   static createRandom() {
