@@ -2,7 +2,6 @@
 
 p5.disableFriendlyErrors = true;
 const isDebugging = false;
-let gWalls: Wall[] = [];
 let gAgents: Agent[] = [];
 let gPlayerRays: Ray[] = [];
 let gPlayer: Particle = null;
@@ -20,7 +19,6 @@ function setup() {
   repeat(gNumStructures, () => {
     const structure = Structure.createRandom();
     gStructures.push(structure);
-    gWalls = gWalls.concat(structure.walls);
   });
 
   repeat(gNumAgents, () => {
@@ -34,10 +32,14 @@ function setup() {
   mouseY = centerPos().y;
 }
 
+function getAllWalls(): Wall[] {
+  return gStructures.flatMap((structure: Structure) => structure.walls);
+}
+
 function createRaysAtPosition(numRays: number, pos: p5.Vector) {
   const rays: Ray[] = [];
   distributeUpTo(numRays, TWO_PI, val =>
-    rays.push(new Ray(pos, { angleRads: val, walls: gWalls }))
+    rays.push(new Ray(pos, { angleRads: val, walls: getAllWalls() }))
   );
   return rays;
 }
@@ -53,7 +55,7 @@ function update() {
     s.update();
   }
   for (let agent of gAgents) {
-    agent.updateWithRoaming(gWalls, mousePosAsVector());
+    agent.updateWithRoaming(getAllWalls(), mousePosAsVector());
   }
 
   gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector());
@@ -70,7 +72,7 @@ function draw() {
   for (let s of gStructures) {
     s.draw();
   }
-  for (let wall of gWalls) {
+  for (let wall of getAllWalls()) {
     wall.draw();
   }
   for (let agent of gAgents) {

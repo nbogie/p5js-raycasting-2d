@@ -18,6 +18,17 @@ function translateToVec(pos: p5.Vector): void {
 function centerPos(): p5.Vector {
   return createVector(width / 2, height / 2);
 }
+function rotateVertexAround(
+  vertex: p5.Vector,
+  rotOrigin: p5.Vector,
+  angleRad: number
+): p5.Vector {
+  return vertex
+    .copy()
+    .sub(rotOrigin)
+    .rotate(angleRad)
+    .add(rotOrigin);
+}
 
 //Taken from https://github.com/bmoren/p5.collide2D
 function collideLineLine(
