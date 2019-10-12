@@ -2,8 +2,7 @@ This is a quick take on the Coding Train ["Coding Challenge #145: 2D Raycasting"
 
 Instead of ray tracing out from the mouse pointer uniformly around a circle, I've raytraced from moving points (e.g. agents) toward the mouse pointer and highlit whether they can see it or not. e.g. guards with Line-of-sight.
 
-![Screenshot of raycasting]()
-![Screenshot showing car sprite on road](screenshot-raycasting-agents.png?raw=true)
+![Screenshot of raycasting](screenshot-raycasting-agents.png?raw=true)
 
 # Credits:
 
