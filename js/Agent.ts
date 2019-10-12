@@ -26,16 +26,26 @@ class Agent {
 
     //draw agent sprite (a circle) according to whether it has l.o.s. to targetPos
     noStroke();
+    push();
+    translate(o.x, o.y);
     if (this.ray.canSeePoint(targetPos)) {
       fill(0, 0, 0, 20);
-      circle(o.x, o.y, 8);
+      circle(0, 0, 8);
+      circle(0, 3, 2);
     } else {
       const distToTarget = this.pos.dist(targetPos);
       const brightness = map(distToTarget, 0, max(width, height), 255, 0);
       const litColor: p5.Color = color(255, 255, 255, brightness);
       fill(litColor);
-      circle(o.x, o.y, 8);
+      circle(0, 0, 8);
+      fill(0, 0, 0, 40);
+      rectMode(CENTER);
+      rect(0, 2, 5, 2);
+      //eyes
+      circle(-2, -2, 2);
+      circle(2, -2, 2);
     }
+    pop();
   }
 
   setPosition(pos: p5.Vector) {
@@ -64,8 +74,8 @@ class Agent {
       .copy()
       .sub(targetPos)
       .normalize();
-    newPos = this.pos.copy().add(attractVec.mult(this.speed));
-
+    //newPos = this.pos.copy().add(attractVec.mult(this.speed));
+    newPos = this.pos.copy();
     newPos.add(offset);
 
     this.setPosition(newPos);
@@ -73,7 +83,7 @@ class Agent {
     this.ray.recalculateIntersections(walls);
 
     const newSpeed =
-      this.speed + (this.ray.canSeePoint(targetPos) ? -0.1 : 0.1);
+      this.speed + (this.ray.canSeePoint(targetPos) ? 0.1 : -0.1);
     if (Math.abs(newSpeed) < 3) {
       this.speed = newSpeed;
     }
