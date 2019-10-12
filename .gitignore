@@ -3,4 +3,4 @@ node_modules/
 **/*.js
 **/*.js.map
 !libs/*.js
-!build/build.jsbuild
+!build/build.js
