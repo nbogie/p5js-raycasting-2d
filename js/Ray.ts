@@ -130,12 +130,12 @@ class Ray {
     const distToMousePointer = this.origin.dist(mousePosAsVector());
     if (nearPt && this.origin.dist(nearPt) < distToMousePointer) {
       fill(0, 0, 0, 20);
-      circle(o.x, o.y, 15);
+      circle(o.x, o.y, 8);
     } else {
       const brightness = map(distToMousePointer, 0, max(width, height), 255, 0);
       const litColor: p5.Color = color(255, 255, 255, brightness);
       fill(litColor);
-      circle(o.x, o.y, 15);
+      circle(o.x, o.y, 8);
     }
     if (this.isDrawIntersections) {
       for (let iPt of this.intersectionPoints) {
@@ -143,8 +143,5 @@ class Ray {
         circle(iPt.x, iPt.y, 2);
       }
     }
-
-    textSize(8);
-    text(this.dir.heading().toFixed(1), o.x + 10, o.y + 10);
   }
 }

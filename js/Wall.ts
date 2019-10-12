@@ -7,7 +7,7 @@ class Wall {
     this.b = b.copy();
   }
   draw() {
-    stroke("cadetblue");
+    stroke(243, 134, 48);
     strokeWeight(4);
     line(this.a.x, this.a.y, this.b.x, this.b.y);
 

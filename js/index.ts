@@ -20,7 +20,6 @@ function setup() {
     gStructures.push(structure);
     gWalls = gWalls.concat(structure.walls);
   });
-  console.log(gWalls);
 
   repeat(gNumWalls, () => {
     gWalls.push(Wall.createRandom());
@@ -49,7 +48,7 @@ function update() {
   gPlayer.update();
 
   for (let ray of gRays) {
-    ray.updateWithRoaming(gWalls, mousePosAsVector();
+    ray.updateWithRoaming(gWalls, mousePosAsVector());
     //ray.setPosition(mousePosAsVector());
     //ray.updateIntersections(gWalls);
   }
@@ -62,9 +61,6 @@ function draw() {
   background(0);
   fill("black");
   noStroke();
-  stroke("cadetblue");
-  textSize(20);
-  text("hello", width / 2, height / 2);
 
   for (let wall of gWalls) {
     wall.draw();
