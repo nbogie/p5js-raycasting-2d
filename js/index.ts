@@ -1,14 +1,15 @@
 "use strict";
 
 p5.disableFriendlyErrors = true;
-const isDebugging = false;
+let isMovingStructures = true;
+let isDrawingIn3D: boolean = false;
 let gAgents: Agent[] = [];
 let gPlayerRays: Ray[] = [];
 let gPlayer: Particle = null;
 let gNumWalls: number = 20;
 let gNumAgents: number = 100;
 let gNumPlayerRays: number = 100;
-let gNumStructures = 30;
+let gNumStructures = 10;
 /* ------------------------------------------------------------------
  * SETUP
  */
@@ -26,7 +27,6 @@ function setup() {
   });
 
   gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector());
-
   gPlayer = Particle.createRandom();
   mouseX = centerPos().x;
   mouseY = centerPos().y;
@@ -51,11 +51,20 @@ function getAllWalls(): Wall[] {
   return screenWalls.concat(wallsFromStructures);
 }
 
-function createRaysAtPosition(numRays: number, pos: p5.Vector) {
+function createRaysAtPosition(
+  numRays: number,
+  pos: p5.Vector,
+  heading: number
+) {
   const rays: Ray[] = [];
-  distributeUpTo(numRays, TWO_PI, val =>
+  const halfFOV = radians(30);
+  distributeBetween(numRays, heading - halfFOV, heading + halfFOV, val =>
     rays.push(new Ray(pos, { angleRads: val, walls: getAllWalls() }))
   );
+
+  // distributeUpTo(numRays, TWO_PI / 8, val =>
+  //   rays.push(new Ray(pos, { angleRads: val, walls: getAllWalls() }))
+  // );
   return rays;
 }
 
@@ -75,17 +84,43 @@ function update() {
     agent.update(getAllWalls(), mousePosAsVector());
   }
 
-  gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector());
+  gPlayerRays = createRaysAtPosition(
+    gNumPlayerRays,
+    mousePosAsVector(),
+    gPlayer.heading
+  );
+  debugger;
 }
+
 /*
  * DRAW
  */
 function draw() {
   update();
   background(0);
+  isDrawingIn3D ? drawFake3D() : drawTopDown();
+  drawPlayerDebugInfo();
+}
+
+function drawPlayerDebugInfo() {
+  push();
+  translate(gPlayer.pos.x, gPlayer.pos.y);
+  noFill();
+  stroke("purple");
+  const vec = p5.Vector.fromAngle(gPlayer.heading).mult(50);
+  line(0, 0, vec.x, vec.y);
+  circle(0, 0, 10);
+  pop();
+}
+function drawFake3D() {
+  background("gray");
+  const buff = makeDistancesBuffer(gPlayerRays);
+  debugger;
+  drawDistancesBuffer(buff);
+}
+function drawTopDown() {
   fill("black");
   noStroke();
-
   for (let s of gStructures) {
     s.draw();
   }
@@ -100,10 +135,17 @@ function draw() {
   }
   gPlayer.draw();
 }
-let isMovingStructures = true;
+function toggle2D3D() {
+  isDrawingIn3D = !isDrawingIn3D;
+}
 function toggleMovingStructures() {
   isMovingStructures = !isMovingStructures;
 }
 function mousePressed() {
   toggleMovingStructures();
+}
+function keyPressed() {
+  if (key == "3") {
+    toggle2D3D();
+  }
 }

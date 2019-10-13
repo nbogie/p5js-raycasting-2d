@@ -1,8 +1,10 @@
 class Particle {
   pos: p5.Vector;
+  heading: number;
 
   constructor(pos: p5.Vector) {
     this.pos = pos.copy();
+    this.heading = 0;
   }
   draw() {
     noStroke();
@@ -11,7 +13,12 @@ class Particle {
     square(this.pos.x, this.pos.y, 3);
     fill(0, 20);
   }
-  update() {}
+  update() {
+    const mouseMovementAngle = angleOfLastMouseMovement();
+    if (mouseMovementAngle !== undefined) {
+      this.heading = mouseMovementAngle;
+    }
+  }
 
   setPosition(pos: p5.Vector) {
     this.pos.x = pos.x;

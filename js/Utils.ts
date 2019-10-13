@@ -82,3 +82,45 @@ function distributeUpTo(total: number, max: number, fn: (v: number) => void) {
     fn(val);
   });
 }
+
+function distributeBetween(
+  numSamples: number,
+  min: number,
+  max: number,
+  fn: (v: number) => void
+) {
+  repeat(numSamples, ix => {
+    const range = max - min;
+    const val = min + (ix * range) / numSamples;
+    fn(val);
+  });
+}
+function averageVectors(vs: p5.Vector[]): p5.Vector {
+  if (vs.length < 1) {
+    return createVector(0, 0);
+  }
+  return vs.reduce((v1, v2) => v1.copy().add(v2), vs[0]).div(vs.length);
+}
+
+//TODO: don't pollute global
+const gLastMouseMovements: p5.Vector[] = [];
+
+//TODO: smooth this out by buffering a few movements
+//Maintain the previous angle if there's been no movement
+function angleOfLastMouseMovement(): number {
+  const delta = createVector(mouseX - pmouseX, mouseY - pmouseY);
+  if (delta.magSq() < 1) {
+    return undefined;
+  } else {
+    gLastMouseMovements.unshift(delta);
+    gLastMouseMovements.splice(8);
+    const avgMovement = averageVectors(gLastMouseMovements);
+
+    //average might have cancelled out and therefore have no heading
+    if (avgMovement.mag() > 0) {
+      return avgMovement.heading();
+    } else {
+      return undefined;
+    }
+  }
+}
