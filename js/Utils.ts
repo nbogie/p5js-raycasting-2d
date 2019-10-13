@@ -1,10 +1,9 @@
-function repeat(num: number, fn: (ix: number) => void) {
-  for (let i = 0; i < num; i++) {
-    fn(i);
-  }
-}
 function randomScreenPosition(): p5.Vector {
   return createVector(random(width), random(height));
+}
+
+function centerScreenPos(): p5.Vector {
+  return createVector(width / 2, height / 2);
 }
 
 function randomInt(min: number, max: number): number {
@@ -13,10 +12,6 @@ function randomInt(min: number, max: number): number {
 
 function translateToVec(pos: p5.Vector): void {
   translate(pos.x, pos.y);
-}
-
-function centerPos(): p5.Vector {
-  return createVector(width / 2, height / 2);
 }
 function rotateVertexAround(
   vertex: p5.Vector,
@@ -60,9 +55,12 @@ function collideLineLine(
   return null;
 }
 
+/** Find the minimum of the given list after applying fn() to each.
+ * Return the minimum, first minimum, or undefined if there are no items.
+ */
 function minBy<T>(list: T[], fn: (item: T) => number): T {
   if (list.length < 0) {
-    return null;
+    return undefined;
   }
   let recordItem = list[0];
   let recordWeight = fn(list[0]);
@@ -76,12 +74,23 @@ function minBy<T>(list: T[], fn: (item: T) => number): T {
   return recordItem;
 }
 
+/** Repeatedly call the given function fn, num times, throwing any output away. */
+function repeat(num: number, fn: (ix: number) => void) {
+  for (let i = 0; i < num; i++) {
+    fn(i);
+  }
+}
+
 function distributeUpTo(total: number, max: number, fn: (v: number) => void) {
   repeat(total, ix => {
     const val = (ix * max) / total;
     return fn(val);
   });
 }
+/** 
+Collect a set of values generated with fn called with 
+a range of numSamples samples distributed evenly from min to max.
+*/
 function collectDistributedBetween<T>(
   numSamples: number,
   min: number,
@@ -137,6 +146,6 @@ function angleOfLastMouseMovement(): number {
 function randomBoolean(): boolean {
   return Math.random() > 0.5;
 }
-function mousePosAsVector() {
+function mousePosAsVector(): p5.Vector {
   return createVector(mouseX, mouseY);
 }

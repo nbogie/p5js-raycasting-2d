@@ -54,8 +54,8 @@ function setup() {
     gNumPlayerRays
   );
   gPlayer = Particle.createRandom();
-  mouseX = centerPos().x;
-  mouseY = centerPos().y;
+  mouseX = centerScreenPos().x;
+  mouseY = centerScreenPos().y;
 }
 
 function makeScreenWalls(): Wall[] {
