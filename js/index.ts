@@ -1,5 +1,14 @@
 "use strict";
 p5.disableFriendlyErrors = true;
+
+let gAgents: Agent[] = [];
+let gPlayerRays: Ray[] = [];
+let gPlayer: Particle = null;
+let gNumAgents: number = 100;
+let gNumPlayerRays: number = 200;
+let gNumStructures = 10;
+let appOptions: AppOptions = randomAppOptions();
+
 interface AppOptions {
   isMovingStructures: boolean;
   isRotatingStructures: boolean;
@@ -12,7 +21,6 @@ let defaultAppOptions: AppOptions = {
   isDrawingIn3D: false,
   isDrawStructures: true
 };
-let appOptions: AppOptions = randomAppOptions();
 
 function randomAppOptions(): AppOptions {
   return {
@@ -23,13 +31,6 @@ function randomAppOptions(): AppOptions {
   };
 }
 
-let gAgents: Agent[] = [];
-let gPlayerRays: Ray[] = [];
-let gPlayer: Particle = null;
-let gNumWalls: number = 20;
-let gNumAgents: number = 100;
-let gNumPlayerRays: number = 100;
-let gNumStructures = 10;
 /* ------------------------------------------------------------------
  * SETUP
  */
@@ -46,7 +47,12 @@ function setup() {
     gAgents.push(Agent.createRandom());
   });
 
-  gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector(), 0);
+  gPlayerRays = createRaysAtPosition(
+    gNumPlayerRays,
+    mousePosAsVector(),
+    0,
+    gNumPlayerRays
+  );
   gPlayer = Particle.createRandom();
   mouseX = centerPos().x;
   mouseY = centerPos().y;
@@ -76,23 +82,18 @@ function getAllWalls(): Wall[] {
 function createRaysAtPosition(
   numRays: number,
   pos: p5.Vector,
-  heading: number
+  heading: number,
+  fovRadians: number
 ) {
-  const rays: Ray[] = [];
-  const halfFOV = radians(30);
-  distributeBetween(numRays, heading - halfFOV, heading + halfFOV, val =>
-    rays.push(new Ray(pos, { angleRads: val, walls: getAllWalls() }))
+  const halfFOV = fovRadians / 2;
+  return collectDistributedBetween(
+    numRays,
+    heading - halfFOV,
+    heading + halfFOV,
+    val => new Ray(pos, { angleRads: val, walls: getAllWalls() })
   );
-
-  // distributeUpTo(numRays, TWO_PI / 8, val =>
-  //   rays.push(new Ray(pos, { angleRads: val, walls: getAllWalls() }))
-  // );
-  return rays;
 }
 
-function mousePosAsVector() {
-  return createVector(mouseX, mouseY);
-}
 function update() {
   gPlayer.setPosition(mousePosAsVector());
   gPlayer.update();
@@ -110,11 +111,12 @@ function update() {
   gPlayerRays = createRaysAtPosition(
     gNumPlayerRays,
     mousePosAsVector(),
-    gPlayer.heading
+    gPlayer.heading,
+    radians(60)
   );
 }
 
-/*
+/* ---------------------------------------------------------------------------
  * DRAW
  */
 function draw() {
@@ -134,11 +136,13 @@ function drawPlayerDebugInfo() {
   circle(0, 0, 10);
   pop();
 }
+
 function drawFake3D() {
   background("gray");
   const buff = makeDistancesBuffer(gPlayerRays);
   drawDistancesBuffer(buff);
 }
+
 function drawTopDown() {
   fill("black");
   noStroke();
