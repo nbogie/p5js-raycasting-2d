@@ -18,23 +18,26 @@ class Agent {
     translate(o.x, o.y);
     scale(2);
     let brightness;
-    if (!this.ray.canSeePoint(targetPos)) {
+    const visible = this.ray.canSeePoint(targetPos);
+    if (!visible) {
       brightness = 20;
+      textSize(24);
+      fill(100, 100, 100, 30);
+      text("?", -6, 8);
     } else {
       const distToTarget = this.pos.dist(targetPos);
       brightness = map(distToTarget, 0, max(width, height), 255, 0);
+      colorMode(RGB);
+      const litColor: p5.Color = color(224, 228, 204, brightness);
+      fill(litColor);
+      circle(0, 0, 8);
+      fill(0, 0, 0, 40);
+      rectMode(CENTER);
+      rect(0, 3, 5, 2);
+      //eyes
+      circle(-2, -1, 1);
+      circle(2, -1, 1);
     }
-    colorMode(RGB);
-    const litColor: p5.Color = color(224, 228, 204, brightness);
-    fill(litColor);
-    circle(0, 0, 8);
-    fill(0, 0, 0, 40);
-    rectMode(CENTER);
-    rect(0, 3, 5, 2);
-    //eyes
-    circle(-2, -1, 1);
-    circle(2, -1, 1);
-
     pop();
   }
 
