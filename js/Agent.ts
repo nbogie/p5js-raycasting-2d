@@ -24,6 +24,7 @@ class Agent {
       const distToTarget = this.pos.dist(targetPos);
       brightness = map(distToTarget, 0, max(width, height), 255, 0);
     }
+    colorMode(RGB);
     const litColor: p5.Color = color(224, 228, 204, brightness);
     fill(litColor);
     circle(0, 0, 8);

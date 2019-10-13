@@ -7,8 +7,9 @@ class Structure {
   myColor: p5.Color;
   rotation: number;
   rotationSpeed: number;
-
+  shouldRotate: boolean;
   constructor(center: p5.Vector, radius: number, numSides: number) {
+    this.shouldRotate = false;
     this.rotation = random(TWO_PI);
     this.myColor = Palette.randomColor();
     this.movementSpeed = -random(0.2, 2);
@@ -96,8 +97,9 @@ class Structure {
       this.abstractVertices.map(v => v.add(createVector(moveAmt, 0))),
       this.myColor
     );
-
-    this.rotate(this.rotationSpeed);
+    if (this.shouldRotate) {
+      this.rotate(this.rotationSpeed);
+    }
   }
   draw() {
     for (let wall of this.walls) {

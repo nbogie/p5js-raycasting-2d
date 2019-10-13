@@ -1,8 +1,28 @@
 "use strict";
-
 p5.disableFriendlyErrors = true;
-let isMovingStructures = true;
-let isDrawingIn3D: boolean = false;
+interface AppOptions {
+  isMovingStructures: boolean;
+  isRotatingStructures: boolean;
+  isDrawingIn3D: boolean;
+  isDrawStructures: boolean;
+}
+let defaultAppOptions: AppOptions = {
+  isMovingStructures: true,
+  isRotatingStructures: true,
+  isDrawingIn3D: false,
+  isDrawStructures: true
+};
+let appOptions: AppOptions = randomAppOptions();
+
+function randomAppOptions(): AppOptions {
+  return {
+    isMovingStructures: randomBoolean(),
+    isRotatingStructures: randomBoolean(),
+    isDrawStructures: randomBoolean(),
+    isDrawingIn3D: randomBoolean()
+  };
+}
+
 let gAgents: Agent[] = [];
 let gPlayerRays: Ray[] = [];
 let gPlayer: Particle = null;
@@ -39,9 +59,11 @@ function makeScreenWalls(): Wall[] {
     [width, height],
     [0, height]
   ].map(([x, y]) => createVector(x, y));
-  return [[tl, tr], [tr, br], [bl, br], [tl, bl]].map(
-    ([pt1, pt2]) => new Wall(pt1, pt2)
-  );
+  return [[tl, tr], [tr, br], [bl, br], [tl, bl]].map(([pt1, pt2]) => {
+    const w = new Wall(pt1, pt2);
+    w.myColor = color("darkgray");
+    return w;
+  });
 }
 function getAllWalls(): Wall[] {
   const wallsFromStructures = gStructures.flatMap(
@@ -76,7 +98,8 @@ function update() {
   gPlayer.update();
 
   for (let s of gStructures) {
-    if (isMovingStructures) {
+    if (appOptions.isMovingStructures) {
+      s.shouldRotate = true;
       s.update();
     }
   }
@@ -89,7 +112,6 @@ function update() {
     mousePosAsVector(),
     gPlayer.heading
   );
-  debugger;
 }
 
 /*
@@ -98,7 +120,7 @@ function update() {
 function draw() {
   update();
   background(0);
-  isDrawingIn3D ? drawFake3D() : drawTopDown();
+  appOptions.isDrawingIn3D ? drawFake3D() : drawTopDown();
   drawPlayerDebugInfo();
 }
 
@@ -115,18 +137,20 @@ function drawPlayerDebugInfo() {
 function drawFake3D() {
   background("gray");
   const buff = makeDistancesBuffer(gPlayerRays);
-  debugger;
   drawDistancesBuffer(buff);
 }
 function drawTopDown() {
   fill("black");
   noStroke();
-  for (let s of gStructures) {
-    s.draw();
+  if (appOptions.isDrawStructures) {
+    for (let s of gStructures) {
+      s.draw();
+    }
   }
   for (let wall of getAllWalls()) {
     wall.draw();
   }
+
   for (let agent of gAgents) {
     agent.draw();
   }
@@ -136,10 +160,13 @@ function drawTopDown() {
   gPlayer.draw();
 }
 function toggle2D3D() {
-  isDrawingIn3D = !isDrawingIn3D;
+  appOptions.isDrawingIn3D = !appOptions.isDrawingIn3D;
 }
 function toggleMovingStructures() {
-  isMovingStructures = !isMovingStructures;
+  appOptions.isMovingStructures = !appOptions.isMovingStructures;
+}
+function toggleRotatingStructures() {
+  appOptions.isRotatingStructures = !appOptions.isRotatingStructures;
 }
 function mousePressed() {
   toggleMovingStructures();
@@ -147,5 +174,11 @@ function mousePressed() {
 function keyPressed() {
   if (key == "3") {
     toggle2D3D();
+  }
+  if (key == "r") {
+    toggleRotatingStructures();
+  }
+  if (key == "o") {
+    randomiseRenderingOptions();
   }
 }
