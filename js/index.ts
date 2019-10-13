@@ -32,8 +32,23 @@ function setup() {
   mouseY = centerPos().y;
 }
 
+function makeScreenWalls(): Wall[] {
+  const [tl, tr, br, bl] = [
+    [0, 0],
+    [width, 0],
+    [width, height],
+    [0, height]
+  ].map(([x, y]) => createVector(x, y));
+  return [[tl, tr], [tr, br], [bl, br], [tl, bl]].map(
+    ([pt1, pt2]) => new Wall(pt1, pt2)
+  );
+}
 function getAllWalls(): Wall[] {
-  return gStructures.flatMap((structure: Structure) => structure.walls);
+  const wallsFromStructures = gStructures.flatMap(
+    (structure: Structure) => structure.walls
+  );
+  const screenWalls = makeScreenWalls();
+  return screenWalls.concat(wallsFromStructures);
 }
 
 function createRaysAtPosition(numRays: number, pos: p5.Vector) {
