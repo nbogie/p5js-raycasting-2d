@@ -26,7 +26,7 @@ function setup() {
     gAgents.push(Agent.createRandom());
   });
 
-  gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector());
+  gPlayerRays = createRaysAtPosition(gNumPlayerRays, mousePosAsVector(), 0);
   gPlayer = Particle.createRandom();
   mouseX = centerPos().x;
   mouseY = centerPos().y;
