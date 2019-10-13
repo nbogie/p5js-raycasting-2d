@@ -1,14 +1,19 @@
 //TODO: namespace this
+
 interface DistantPoint {
   distance: number;
+  //TODO: this could just be a collection of data about the object it hit (object id, color, surface normal, illumination, texture, height)
   color: p5.Color;
 }
+
 interface DistancesBuffer {
   values: DistantPoint[];
 }
+
 function makeDistancesBuffer(rays: Ray[]): DistancesBuffer {
   return generateDataFromRays(rays);
 }
+
 function colorForPoint(
   { color: c, pt }: IntersectionPoint,
   origin: p5.Vector
@@ -20,6 +25,7 @@ function colorForPoint(
   colorMode(HSL, 100);
   return color(h, s, lightness);
 }
+
 function generateDataFromRays(rays: Ray[]): DistancesBuffer {
   return {
     values: rays.map(ray => {
@@ -36,10 +42,16 @@ function generateDataFromRays(rays: Ray[]): DistancesBuffer {
 
 function drawDistancesBuffer(distantPoints: DistancesBuffer) {
   const numStrips = distantPoints.values.length;
-  const stripWidth = round(width / numStrips);
+  const stripSpacing = width / numStrips;
+  const stripWidth = ceil(stripSpacing);
+
   distantPoints.values.forEach(({ distance, color }, ix) => {
     const x = ix * stripWidth;
-    const y = map(distance, 0, width, height * 0.7, 0);
+    const distSq = distance ^ 2;
+    const maxHeight = height * 0.7;
+    const maxHeightSq = maxHeight ^ 2;
+    const y = map(distSq, 0, width, maxHeightSq, 0);
+
     noStroke();
     fill(color);
     rectMode(CENTER);
