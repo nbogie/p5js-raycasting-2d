@@ -79,10 +79,19 @@ function minBy<T>(list: T[], fn: (item: T) => number): T {
 function distributeUpTo(total: number, max: number, fn: (v: number) => void) {
   repeat(total, ix => {
     const val = (ix * max) / total;
-    fn(val);
+    return fn(val);
   });
 }
-
+function collectDistributedBetween<T>(
+  numSamples: number,
+  min: number,
+  max: number,
+  fn: (v: number) => T
+): T[] {
+  const result: T[] = [];
+  distributeBetween(numSamples, min, max, v => result.push(fn(v)));
+  return result;
+}
 function distributeBetween(
   numSamples: number,
   min: number,
@@ -92,7 +101,7 @@ function distributeBetween(
   repeat(numSamples, ix => {
     const range = max - min;
     const val = min + (ix * range) / numSamples;
-    fn(val);
+    return fn(val);
   });
 }
 function averageVectors(vs: p5.Vector[]): p5.Vector {
@@ -127,4 +136,7 @@ function angleOfLastMouseMovement(): number {
 
 function randomBoolean(): boolean {
   return Math.random() > 0.5;
+}
+function mousePosAsVector() {
+  return createVector(mouseX, mouseY);
 }
