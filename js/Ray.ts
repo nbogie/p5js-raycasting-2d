@@ -1,12 +1,10 @@
 interface RenderingOptions {
-  drawAsCobweb: boolean;
   drawGhostRay: boolean;
   drawRayToFirstIntersection: boolean;
   drawAllIntersections: boolean;
   drawFirstIntersection: boolean;
 }
 const defaultRenderingOptions: RenderingOptions = {
-  drawAsCobweb: false,
   drawGhostRay: false,
   drawRayToFirstIntersection: true,
   drawAllIntersections: false,
@@ -20,7 +18,6 @@ function randomiseRenderingOptions() {
 
 function randomRenderingOptions() {
   return {
-    drawAsCobweb: randomBoolean(),
     drawGhostRay: randomBoolean(),
     drawRayToFirstIntersection: randomBoolean(),
     drawAllIntersections: randomBoolean(),
@@ -124,14 +121,7 @@ class Ray {
 
   drawLitLineSegment(a: p5.Vector, b: p5.Vector): void {
     stroke("white");
-    if (renderingOptions.drawAsCobweb) {
-      for (let i = 0; i < 20; i++) {
-        const pt = a.copy().lerp(b, i / 10);
-        square(pt.x, pt.y, 1);
-      }
-    } else {
-      line(a.x, a.y, b.x, b.y);
-    }
+    line(a.x, a.y, b.x, b.y);
   }
 
   drawRayUntilFirstIntersection(): void {
